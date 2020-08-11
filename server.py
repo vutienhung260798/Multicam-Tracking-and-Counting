@@ -9,9 +9,9 @@ import cv2
 from tracking import Sort
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-mW", "--montageW", required=True, type=int,
+ap.add_argument("-mW", "--montageW", default = 2, type=int,
 	help="montage frame width")
-ap.add_argument("-mH", "--montageH", required=True, type=int,
+ap.add_argument("-mH", "--montageH", default= 2, type=int,
 	help="montage frame height")
 args = vars(ap.parse_args())
 
@@ -45,7 +45,7 @@ while True:
     frame = imutils.resize(frame, width = 400)
     (h, w) = frame.shape[:2]
 
-    tracking person 
+    #tracking person 
     boxes,imgs = detector.detect(frame) # boxes : xmin,ymin,xmax,ymax
     boxes=np.array(boxes)
     if (len(boxes) != 0):
