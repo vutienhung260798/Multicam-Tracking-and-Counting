@@ -7,6 +7,11 @@ import argparse
 import imutils
 import cv2
 from tracking import Sort
+from contextlib import contextmanager
+from wide_resnet import WideResNet
+from keras.utils.data_utils import get_file
+from mtcnn.mtcnn import MTCNN
+import dlib
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-mW", "--montageW", default = 2, type=int,
@@ -31,6 +36,13 @@ frameDict = {}
 lastActive = {}
 lastActiveCheck = datetime.now()
 num_person = 0
+
+margin = 0.3
+img_size = 64
+detector1 = MTCNN()
+model = WideResNet(64, depth=16, k=8)()
+model.load_weights('./pretrained_models/weights.29-3.76_utk.hdf5')
+# detected = detector.detect_faces(input_img)
 
 while True:
     # recive frame from client
@@ -57,10 +69,31 @@ while True:
             id = int(box[4])
             box = [int(box[0]), int(box[1]), int(box[2]), int(box[3]), box[4]]
             frame=cv2.rectangle(frame,(box[0],box[1]),(box[2],box[3]),(100,255,100),2)
-            frame = cv2.putText(frame,str(id),(box[0],box[1]),font,0.5,(255, 0, 0),2)
+            frame = cv2.putText(frame,'id: '+str(id),(box[0],box[1] - 5),font,0.8,(255, 0, 0),2)
             if id > num_person:
                 num_person = id
-    
+            
+            detected =detector1.detect_faces(frame[box[1]:box[3], box[0]:box[2], :])
+            if len(detected) == 0:
+                continue
+            else:
+                faces = np.empty((len(detected), 64, 64, 3))
+                input_frame = frame[box[1]:box[3], box[0]:box[2], :]
+                x1, y1, w1, h1 = detected[0]['box']
+                x2, y2 = x1 + w1, y1 + h1
+                xw1 = max(int(x1 - margin * w1), 0)
+                yw1 = max(int(y1 - margin * h1), 0)
+                xw2 = min(int(x2 + margin * w1), w - 1)
+                yw2 = min(int(y2 + margin * h1), h - 1)
+                # cv2.rectangle(frame, (box[0]+x1, box[1]+y1), (box[0]+x1+w1, box[1]+y1+h1), (255, 0, 0), 2)
+                faces[0, :, :, :] = cv2.resize(input_frame[yw1:yw2 + 1, xw1:xw2 + 1, :], (64, 64))
+                results = model.predict(faces)
+                predicted_genders = results[0]
+                ages = np.arange(0, 101).reshape(101, 1)
+                predicted_ages = results[1].dot(ages).flatten()
+                agender = "{}, {}".format(int(predicted_ages[0]), "M" if predicted_genders[0][0] < 0.5 else "F")
+                cv2.putText(frame, agender, (box[0],box[1]+20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, lineType=cv2.LINE_AA)
+
     label = 'num_person: ' + str(num_person)
     cv2.putText(frame, label, (10, h - 10) ,cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     #sending device name on the frame        
