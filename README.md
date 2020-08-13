@@ -1,5 +1,18 @@
 # Multicam-Tracking-and-Counting
 
+
+
+## Age and Gender Estimation
+This is a Keras implementation of a CNN for estimating age and gender from a face image [1, 2].
+In training, [the IMDB-WIKI dataset](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/) is used.
+
+- [Jun. 30, 2019] [Another PyTorch-based project](https://github.com/yu4u/age-estimation-pytorch) was released
+- [Nov. 12, 2018] Enable Adam optimizer; seems to be better than momentum SGD
+- [Sep. 23, 2018] Demo from directory
+- [Aug. 11, 2018] Add age estimation sub-project [here](age_estimation)
+- [Jul. 5, 2018] The UTKFace dataset became available for training.
+- [Apr. 10, 2018] Evaluation result on the APPA-REAL dataset was added.
+
 ## Dependencies
 - Python3.5+
 - Keras2.0+
