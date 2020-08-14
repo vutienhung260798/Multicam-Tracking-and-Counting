@@ -41,7 +41,7 @@ margin = 0.3
 img_size = 64
 detector1 = MTCNN()
 model = WideResNet(64, depth=16, k=8)()
-model.load_weights('./pretrained_models/weights.29-3.76_utk.hdf5')
+model.load_weights('./pretrained_models/weights.28-3.73.hdf5')
 # detected = detector.detect_faces(input_img)
 
 while True:

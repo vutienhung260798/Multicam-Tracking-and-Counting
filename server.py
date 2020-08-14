@@ -7,6 +7,7 @@ import argparse
 import imutils
 import cv2
 from tracking import Sort
+# import tracking
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-mW", "--montageW", default = 2, type=int,
@@ -24,7 +25,8 @@ ACTIVE_CHECK_PERIOD = 10
 ACTIVE_CHECK_SECONDS = ESTIMATED_NUM_PIS * ACTIVE_CHECK_PERIOD
 
 detector = Detector() # select yolov5
-tracker = Sort(15, 3)
+# track = [Sort(15, 3), Sort(15, 3)]
+tracker_dict= {}
 font= cv2.FONT_HERSHEY_SIMPLEX
 imageHub = imagezmq.ImageHub()
 frameDict = {}
@@ -36,6 +38,19 @@ while True:
     # recive frame from client
     (rpiName, frame) = imageHub.recv_image()
     imageHub.send_reply(b'OK')
+    # print(rpiName)
+
+    if rpiName not in tracker_dict.keys():
+        tracker_dict[rpiName] = Sort(15, 3)
+    
+    tracker = tracker_dict[rpiName]
+    print("num frame ",tracker.frame_count)
+    # if rpiName == '0':
+    #     tracker = track[0]
+    # else:
+    #     tracker = track[1]
+    
+    # print(len(tracker_dict.keys()))
     
     if rpiName not in lastActive.keys():
         print("[INFO] receiving data from {}...".format(rpiName))
@@ -43,7 +58,7 @@ while True:
     lastActive[rpiName] = datetime.now()
     print(lastActive[rpiName])
 
-    frame = imutils.resize(frame, width = 600)
+    frame = cv2.resize(frame, (600, 400))
     (h, w) = frame.shape[:2]
 
     #tracking person 
