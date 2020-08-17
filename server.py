@@ -36,7 +36,7 @@ class Server(object):
                 self.process_cams[rpiName] = ProcessCam(rpiName)
             
             # threading.Thread(target= self.process_cams[rpiName].process, args=(frame, self.frameDict)).start()
-            self.process_cams[rpiName].process(frame, self.detect_face, self.frameDict)
+            self.process_cams[rpiName].run(frame, self.detect_face, self.frameDict)
             
             montages = build_montages(self.frameDict.values(), (600, 400), (self.mW, self.mH))
             

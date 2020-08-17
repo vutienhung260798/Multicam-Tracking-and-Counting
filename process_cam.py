@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 class ProcessCam:
 
-    def __init__(self, rpiName, detector = Detector(), path_model = './agender/pretrained_models/weights.28-3.73.hdf5'):
+    def __init__(self, rpiName, detector = Detector(), path_model = './agender/pretrained_models/weights.29-3.76_utk.hdf5'):
         self.rpiName = rpiName
         self.detector = detector
         self.tracker = Sort(15, 3)
@@ -37,7 +37,7 @@ class ProcessCam:
             agender = "{}, {}".format(int(predicted_ages[0]), "M" if predicted_genders[0][0] < 0.5 else "F")
             cv2.putText(frame, agender, (box[0],box[1]+20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, lineType=cv2.LINE_AA)
 
-    def process(self, frame, detect_face, frameDict):
+    def __process(self, frame, detect_face):
         (h, w) = frame.shape[:2]
         boxes, imgs = self.detector.detect(frame)
         boxes = np.array(boxes)
@@ -58,8 +58,8 @@ class ProcessCam:
         cv2.putText(frame, label, (10, h-10) ,cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
         cv2.putText(frame, str(self.rpiName), (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
         frame = cv2.resize(frame, (600, 400))
-        frameDict[self.rpiName] = frame
+        # frameDict[self.rpiName] = frame
     
-    # def run(self, frame, frameDict):
-    #     self.__process(frame)
-    #     frameDict[self.rpiName] = frame
+    def run(self, frame, detect_face, frameDict):
+        self.__process(frame, detect_face)
+        frameDict[self.rpiName] = frame
