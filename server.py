@@ -33,9 +33,10 @@ class Server(object):
             self.imageHub.send_reply(b'OK')
             #create tracker model for each rpiName
             if rpiName not in self.process_cams.keys():
-                self.process_cams[rpiName] = ProcessCam(rpiName)
+                self.process_cams[rpiName] = ProcessCam(rpiName, self.detector)
             
             # threading.Thread(target= self.process_cams[rpiName].process, args=(frame, self.frameDict)).start()
+            # multiprocessing.Process(target = self.process_cams[rpiName].run, args = (frame,self.detect_face, self.frameDict,))
             self.process_cams[rpiName].run(frame, self.detect_face, self.frameDict)
             
             montages = build_montages(self.frameDict.values(), (600, 400), (self.mW, self.mH))

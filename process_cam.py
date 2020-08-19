@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 class ProcessCam:
 
-    def __init__(self, rpiName, detector = Detector(), path_model = './agender/pretrained_models/weights.29-3.76_utk.hdf5'):
+    def __init__(self, rpiName, detector, path_model = './agender/pretrained_models/weights.29-3.76_utk.hdf5'):
         self.rpiName = rpiName
         self.detector = detector
         self.tracker = Sort(15, 3)

@@ -1,3 +1,17 @@
+"""
+    SORT: A Simple, Online and Realtime Tracker
+    Copyright (C) 2016 Alex Bewley alex@dynamicdetection.com
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
 from __future__ import print_function
 
 from numba import jit
@@ -62,9 +76,8 @@ class KalmanBoxTracker(object):
     """
     This class represents the internel state of individual tracked objects observed as bbox.
     """
-    count = 0
 
-    def __init__(self, bbox):
+    def __init__(self, bbox, count):
         """
         Initialises a tracker using initial bounding box.
         """
@@ -83,8 +96,8 @@ class KalmanBoxTracker(object):
 
         self.kf.x[:4] = convert_bbox_to_z(bbox)
         self.time_since_update = 0
-        self.id = KalmanBoxTracker.count
-        KalmanBoxTracker.count += 1
+        self.id = count
+        self.count = count+1
         self.history = []
         self.hits = 0
         self.hit_streak = 0
@@ -169,6 +182,7 @@ class Sort(object):
         self.min_hits = min_hits
         self.trackers = []
         self.frame_count = 0
+        self.count = 0
 
     def update(self, dets):
         """
@@ -202,7 +216,8 @@ class Sort(object):
 
         # create and initialise new trackers for unmatched detections
         for i in unmatched_dets:
-            trk = KalmanBoxTracker(dets[i, :])
+            trk = KalmanBoxTracker(dets[i, :], self.count)
+            self.count = trk.count
             self.trackers.append(trk)
         i = len(self.trackers)
         for trk in reversed(self.trackers):
