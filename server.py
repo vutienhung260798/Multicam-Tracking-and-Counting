@@ -17,9 +17,19 @@ import threading
 
 class Server(object):
 
-    def __init__(self, mW = 2, mH = 2, detector = Detector(), detect_face = MTCNN()):
-        self.mW = mW
-        self.mH = mH
+    def __init__(self, num_cam = 1, detector = Detector(), detect_face = MTCNN()):
+        if num_cam == 1:
+            self.mW = 1
+            self.mH = 1
+        if num_cam == 4:
+            self.mW = 2
+            self.mH = 2
+        if num_cam == 6:
+            self.mW = 3
+            self.mH = 2
+        if num_cam == 9:
+            self.mW = 3
+            self.mH = 3
         self.detector = detector
         self.detect_face = detect_face
         self.imageHub = imagezmq.ImageHub()
@@ -34,8 +44,8 @@ class Server(object):
             self.process_cams[rpiName] = ProcessCam(rpiName, self.detector)
 
         self.process_cams[rpiName].run(frame, self.detect_face, self.frameDict)
-        
-        montages = build_montages(self.frameDict.values(), (600, 400), (self.mW, self.mH))
+        w, h = int(1500/self.mW), int(900/self.mH)
+        montages = build_montages(self.frameDict.values(), (w, h), (self.mW, self.mH))
         return montages
 
     def run(self):
