@@ -8,13 +8,18 @@ import threading
 
 class Client(object):
 
-	def __init__(self, ip_cam = '0', server_ip = ''):
+	def __init__(self, ip_cam = '0'):
 		if ip_cam == '0':
 			self.ip_cam = int(ip_cam)
 		else:
-			self.ip_cam = 'http://' + str(ip_cam) +'/video?.mjpeg'
-		self.server_ip = server_ip
+			self.ip_cam = str(ip_cam)
+		self.server_ip = self.get_ip_address()
 		self.sender = imagezmq.ImageSender(connect_to="tcp://{}:5555".format(self.server_ip))
+
+	def get_ip_address(self):
+		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		s.connect(("8.8.8.8", 80))
+		return s.getsockname()[0]
 
 	def run(self):
 		vs = VideoStream(src = self.ip_cam).start()
@@ -24,6 +29,6 @@ class Client(object):
 
 
 if __name__ == '__main__':
-	opt = Client(ip_cam = '0', server_ip = '192.168.100.111')
+	opt = Client(ip_cam = '0')
 	threading.Thread(target = opt.run).start()
 	# opt.run()

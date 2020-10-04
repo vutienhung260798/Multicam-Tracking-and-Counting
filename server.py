@@ -50,7 +50,8 @@ class Server(object):
         cv2.destroyAllWindows()
     
     def stop(self):
-        self.imageHub.stop()
+        self.imageHub.close()
+        del self.imageHub
 
 
 if __name__ == '__main__':
